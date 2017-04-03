@@ -6,4 +6,6 @@ deploy:
   provider: bintray
   skip_cleanup: true
   user: pauldraper
+git:
+  depth: 1
 script: make VERSION=$TRAVIS_TAG all bintray

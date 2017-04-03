@@ -1,4 +1,4 @@
-MAKEFLAGS := -j$(shell nproc) --no-builtin-rules $(MAKEFLAGS)
+MAKEFLAGS := -j$(shell nproc) $(MAKEFLAGS)
 SHELL := /bin/bash
 
 PERCENT := %
