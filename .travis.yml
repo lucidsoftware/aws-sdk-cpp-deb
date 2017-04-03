@@ -1,0 +1,9 @@
+deploy:
+  file: bintray.json
+  key: $BINTRAY_KEY
+  on:
+    tags: true
+  provider: bintray
+  skip_cleanup: true
+  user: pauldraper
+script: make VERSION=$TRAVIS_TAG all bintray
