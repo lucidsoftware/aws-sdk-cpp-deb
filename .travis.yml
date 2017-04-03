@@ -8,4 +8,6 @@ deploy:
   user: pauldraper
 git:
   depth: 1
-script: make VERSION=$TRAVIS_TAG all bintray
+script:
+  - ls
+  - make VERSION=$TRAVIS_TAG all bintray
