@@ -1,19 +1,22 @@
-MAKEFLAGS := -j$(shell nproc) $(MAKEFLAGS)
 SHELL := /bin/bash
 
 PERCENT := %
 
 -include names.makefile
-
-VERSION ?= 1.0
+VERSION ?= 1.0.0
 
 .PHONY: all
 all: $(NAMES:%=debian/%.deb) $(NAMES:%=debian/%-dev.deb)
 
+.PHONY:
 bintray: $(NAMES:%=bintray/%.json)
 
+.PHONY:
 clean:
 	rm -fr bintray debian
+
+.PHONY: none
+none:
 
 # Run CMake
 .aws-sdk-cpp.cmake: .git/modules/aws-sdk-cpp/HEAD
@@ -34,6 +37,12 @@ bintray/%.json: bintray.py
 debian/control:
 	@mkdir -p $(@D)
 	> $@
+
+debian/%/DEBIAN/postinst:
+	echo '[ "$1" != configure ] || ldconfig' > $@
+
+debian/%/DEBIAN/postrm:
+	echo '[ "$1" != remove ] || ldconfig'
 
 # Helps dpkg-shlibdeps
 debian/%/DEBIAN/symbols:

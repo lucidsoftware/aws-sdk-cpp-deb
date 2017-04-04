@@ -1,3 +1,7 @@
+addons:
+  apt:
+    packages:
+      - libpulse-dev
 deploy:
   file: bintray.json
   key: $BINTRAY_KEY
@@ -6,6 +10,11 @@ deploy:
   provider: bintray
   skip_cleanup: true
   user: pauldraper
+dist: trusty
 git:
   depth: 1
-script: make VERSION=$TRAVIS_TAG all bintray
+script:
+  - '[ -z "$TRAVIS_TAG" ] || export VERSION="$TRAVIS_TAG"'
+  - make -j3 all bintray
+  - '[ -f names.makefile ]'
+sudo: required # has ~2x more memory
