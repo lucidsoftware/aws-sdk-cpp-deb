@@ -2,8 +2,7 @@ addons:
   apt:
     packages:
       - libpulse-dev
-deploy:
-  file: bintray.json
+DEPLOY_DEFAULT: &DEPLOY_DEFAULT
   key: $BINTRAY_KEY
   on:
     tags: true
