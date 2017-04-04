@@ -9,7 +9,7 @@ VERSION ?= 1.0.0
 all: $(NAMES:%=debian/%.deb) $(NAMES:%=debian/%-dev.deb)
 
 .PHONY:
-bintray: $(NAMES:%=bintray/%.json)
+bintray: bintray.json
 
 .PHONY:
 clean:
@@ -24,14 +24,23 @@ none:
 	cd aws-sdk-cpp && cmake -DCMAKE_BUILD_TYPE=Release -DENABLE_TESTING=OFF -DMINIMIZE_SIZE=ON
 	@> $@
 
+.PHONY: .travis.yml
+.travis.yml: .travis.yml.in
+	cp $< $@
+	echo 'deploy:' >> $@
+	for name in $(NAMES) $(NAMES:%=%-dev); do \
+		echo '  -' >> $@;                     \
+		echo '    <<: *DEPLOY_DEFAULT' >> $@; \
+		echo "    file: bintray/$$name.json" >> $@; \
+	done
+
 # Run make
 names.makefile: .aws-sdk-cpp.cmake
 	+$(MAKE) $(MAKEFLAGS) -C aws-sdk-cpp
 	echo "NAMES := $$(basename -a -s .so aws-sdk-cpp/*/lib*.so | tr '\n' ' ')" > $@
 
-bintray/%.json: bintray.py
-	@mkdir -p $(@D)
-	./$< $* $(VERSION) $$(dpkg --print-architecture) > $@
+bintray.json: bintray.json.erb
+	VERSION=$(VERSION) erb $< > $@
 
 # Oddly required for dpkg-shlibdeps
 debian/control:
@@ -64,7 +73,7 @@ debian/%.so: aws-sdk-cpp/$$(patsubst lib$$(PERCENT),$$(PERCENT),$$(*F))/$$(*F).s
 SYMBOLS := $(NAMES:%=debian/%/DEBIAN/symbols)
 debian/%/DEBIAN/control: debian/$$*/usr/lib/$$*.so debian/control $$(SYMBOLS)
 	echo Architecture: $$(dpkg --print-architecture) > $@
-	echo Depends: $$(dpkg-shlibdeps -O --warnings=0  $< | sed s/shlibs:Depends=//) >> $@
+	echo Depends: $$(dpkg-shlibdeps -O -xlibstdc++6 --warnings=0  $< | sed s/shlibs:Depends=//) >> $@
 	echo Description: 'AWS C++ SDK' >> $@
 	echo Maintainer: 'Lucid Software <ops@lucidchart.com>' >> $@
 	echo Package: $* >> $@
@@ -76,7 +85,7 @@ debian/%.deb: debian/%/DEBIAN/control debian/$$*/usr/lib/$$*.so
 debian/%-dev/DEBIAN/control: debian/$$*/usr/lib/$$*.so debian/control $$(SYMBOLS)
 	@mkdir -p $(@D)
 	echo Architecture: $$(dpkg --print-architecture) > $@
-	echo Depends: $$(dpkg-shlibdeps -O --warnings=0  $< | sed -e s/shlibs:Depends=// -e 's/\([^ ^,]\+\)\([^,]*\)/\1-dev\2/g' -e s/libpulse0-dev/libpulse-dev/) >> $@
+	echo Depends: '$* (= $(VERSION)), ' $$(dpkg-shlibdeps -O -xlibstdc++6 --warnings=0  $< | sed -e s/shlibs:Depends=// -e 's/\([^ ^,]\+\)\([^,]*\)/\1-dev\2/g' -e s/libpulse0-dev/libpulse-dev/ -e 's/libssl\S\+/libssl-dev/') >> $@
 	echo Description: 'AWS C++ SDK headers' >> $@
 	echo Maintainer: 'Lucid Software <ops@lucidchart.com>' >> $@
 	echo Package: $*-dev >> $@

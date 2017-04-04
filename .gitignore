@@ -1,3 +1,4 @@
 /.aws-sdk-cpp.cmake
-/bintray/
+/bintray.json
 /debian/
+/names.makefile

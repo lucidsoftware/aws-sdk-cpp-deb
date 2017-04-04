@@ -1,0 +1,29 @@
+{
+    "files": [
+        {
+            "matrixParams": {
+                "deb_distribution": "main", 
+                "deb_component": "contrib", 
+                "deb_architecture": "amd64"
+            }, 
+            "uploadPattern": "pool/main/a/aws-sdk-cpp/$1_<%= ENV['VERSION'] %>_amd64.deb", 
+            "includePattern": "debian/(.*)\\.deb"
+        }
+    ], 
+    "version": {
+        "gpgSign": true, 
+        "name": "<%= ENV['VERSION'] %>", 
+        "vcs_tag": "<%= ENV['VERSION'] %>"
+    }, 
+    "publish": true, 
+    "package": {
+        "vcs_url": "https://github.com/lucidsoftware/aws-sdk-cpp-deb", 
+        "name": "aws-cpp-sdk", 
+        "repo": "apt", 
+        "licenses": [
+            "Apache-2.0"
+        ], 
+        "desc": "AWS C++ SDK", 
+        "subject": "lucidsoftware"
+    }
+}
