@@ -85,7 +85,7 @@ debian/%.deb: debian/%/DEBIAN/control debian/$$*/usr/lib/$$*.so
 debian/%-dev/DEBIAN/control: debian/$$*/usr/lib/$$*.so debian/control $$(SYMBOLS)
 	@mkdir -p $(@D)
 	echo Architecture: $$(dpkg --print-architecture) > $@
-	echo Depends: '$* (= $(VERSION)), ' $$(dpkg-shlibdeps -O -xlibstdc++6 --warnings=0  $< | sed -e s/shlibs:Depends=// -e 's/\([^ ^,]\+\)\([^,]*\)/\1-dev\2/g' -e s/libpulse0-dev/libpulse-dev/ -e 's/libssl\S\+/libssl-dev/') >> $@
+	echo Depends: '$* (= $(VERSION)), ' $$(dpkg-shlibdeps -O -xlibstdc++6 --warnings=0  $< | sed -e s/shlibs:Depends=// -e 's/\([^ ^,]\+\)\([^,]*\)/\1-dev\2/g' -e s/libpulse0-dev/libpulse-dev/ -e 's/libssl\S\+/libssl-dev/') | sed 's/,*$//g' >> $@
 	echo Description: 'AWS C++ SDK headers' >> $@
 	echo Maintainer: 'Lucid Software <ops@lucidchart.com>' >> $@
 	echo Package: $*-dev >> $@
